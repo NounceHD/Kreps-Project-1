@@ -4,18 +4,27 @@ using UnityEngine;
 
 public class PlayerCharacter : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private float health = 25f;
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetAxis("Fire1") == 1)
         {
-            GetComponent<BulletShoot>().bulletShoot();
+            GameObject camera = GameObject.FindWithTag("MainCamera");
+            Vector3 rotation = new(camera.transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0);
+            GetComponent<BulletShoot>().Shoot(rotation);
         }
+    }
+
+    public void Damage(float damageAmount)
+    {
+        health -= damageAmount;
+        Debug.Log(health);
+        health = Mathf.Max(health, 0);
+    }
+
+    public void Heal(float healAmount)
+    {
+        health += healAmount;
     }
 }

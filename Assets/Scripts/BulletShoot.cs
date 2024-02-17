@@ -4,11 +4,28 @@ using UnityEngine;
 
 public class BulletShoot : MonoBehaviour
 {
-    [SerializeField] GameObject bulletPrefab;
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private float cooldownMax = 0.1f;
 
-    public void bulletShoot()
+    private bool canShoot = true;
+
+    public void Shoot(Vector3 angle)
     {
-        GameObject bullet = Instantiate(bulletPrefab);
-        bullet.transform.SetPositionAndRotation(transform.TransformPoint(Vector3.forward * 1.2f), transform.rotation);
+        if (canShoot)
+        {
+            StartCoroutine(Cooldown());
+            GameObject bullet = Instantiate(bulletPrefab);
+            Vector3 position = (Quaternion.Euler(angle) * Vector3.forward * 1.2f) + transform.position;
+            bullet.transform.SetPositionAndRotation(position, Quaternion.Euler(angle));
+        }
     }
+
+    private IEnumerator Cooldown()
+    {
+        canShoot = false;
+        yield return new WaitForSeconds(cooldownMax);
+        canShoot = true;
+    }
+
+    
 }
