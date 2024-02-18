@@ -12,6 +12,9 @@ public class EnemyCharacter : MonoBehaviour
     private bool targetPlayer = false;
     private float playerDistance = 0;
     private float rotationX = 0;
+    private Vector3 velocity;
+    private bool onGround = true;
+    private float gravity = -9.8f;
 
     void Start()
     {
@@ -35,11 +38,24 @@ public class EnemyCharacter : MonoBehaviour
 
     private void Move()
     {
+        CharacterController charCon = GetComponent<CharacterController>();
+
+        if (onGround != charCon.isGrounded && charCon.isGrounded == false)
+        {
+            velocity.x = 0.5f * charCon.velocity.x;
+            velocity.z = 0.5f * charCon.velocity.z;
+        }
+        onGround = charCon.isGrounded;
+
         Vector3 moveAmount = transform.forward;
-        if (targetPlayer && playerDistance < 7) moveAmount *= -1;
         moveAmount = Vector3.ClampMagnitude(moveAmount * speed, speed);
-        moveAmount.y = -9.8f;
-        GetComponent<CharacterController>().Move(moveAmount * Time.deltaTime);
+        if (targetPlayer && playerDistance < 7) moveAmount *= -1;
+        if (!onGround) moveAmount *= 0.5f;
+
+        velocity.y += gravity * Time.deltaTime;
+        if (onGround) velocity = new Vector3(0, -1f, 0);
+        moveAmount += velocity;
+        charCon.Move(moveAmount * Time.deltaTime);
     }
     private void DetectObstacle()
     {
