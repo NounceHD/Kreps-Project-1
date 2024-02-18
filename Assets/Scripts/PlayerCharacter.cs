@@ -26,5 +26,6 @@ public class PlayerCharacter : MonoBehaviour
     public void Heal(float healAmount)
     {
         health += healAmount;
+        Debug.Log(health);
     }
 }

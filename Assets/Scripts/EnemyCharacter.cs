@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class EnemyCharacter : MonoBehaviour
 {
+    [SerializeField] private GameObject healthSpherePrefab;
+
     private float health = 1f;
     private float speed = 3f;
     private bool targetPlayer = false;
@@ -26,7 +28,6 @@ public class EnemyCharacter : MonoBehaviour
     private void Move()
     {
         Vector3 moveAmount = transform.forward;
-        Debug.Log(targetPlayer);
         if (targetPlayer && playerDistance < 7) moveAmount *= -1;
         moveAmount = Vector3.ClampMagnitude(moveAmount * speed, speed);
         moveAmount.y = -9.8f;
@@ -73,12 +74,14 @@ public class EnemyCharacter : MonoBehaviour
             }
         }
     }
-
     private void Kill()
     {
         GetComponent<CharacterController>().enabled = false;
         Rigidbody rigidBody = gameObject.AddComponent<Rigidbody>();
         rigidBody.AddForce(50 * speed * transform.forward);
+
+        GameObject healthSphere = Instantiate(healthSpherePrefab);
+        healthSphere.transform.position = transform.position;
     }
 
     public void Damage(float damageAmount, Vector3 direction)
