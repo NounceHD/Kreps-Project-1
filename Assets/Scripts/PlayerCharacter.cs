@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class PlayerCharacter : MonoBehaviour
 {
     private float health = 25f;
+    public bool isAlive = true;
 
     void Update()
     {
@@ -15,17 +17,23 @@ public class PlayerCharacter : MonoBehaviour
             GetComponent<BulletShoot>().Shoot(rotation);
         }
     }
+    private void Kill()
+    {
+        isAlive = false;
+        Destroy(GetComponent<MovementControl>());
+        Destroy(GetComponent<BulletShoot>());
+        Debug.Log("Player has died");
+    }
 
     public void Damage(float damageAmount)
     {
         health -= damageAmount;
-        Debug.Log(health);
+        if (health == 0) Kill();
         health = Mathf.Max(health, 0);
     }
 
     public void Heal(float healAmount)
     {
         health += healAmount;
-        Debug.Log(health);
     }
 }

@@ -7,11 +7,19 @@ public class EnemyCharacter : MonoBehaviour
 {
     [SerializeField] private GameObject healthSpherePrefab;
 
-    private float health = 1f;
+    public float health = 1f;
     private float speed = 3f;
     private bool targetPlayer = false;
     private float playerDistance = 0;
     private float rotationX = 0;
+
+    void Start()
+    {
+        
+
+        float randomRotate = Random.Range(0f, 360f);
+        transform.rotation = Quaternion.Euler(0, randomRotate, 0);
+    }
 
     void Update()
     {
@@ -40,7 +48,8 @@ public class EnemyCharacter : MonoBehaviour
         bool frontPath = Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, distance);
         if (frontPath)
         {
-            PlayerCharacter hitPlayer = hit.collider.GetComponent<PlayerCharacter>();
+            bool hitPlayer = false;
+            if (hit.collider.GetComponent<PlayerCharacter>()) hitPlayer = hit.collider.GetComponent<PlayerCharacter>().isAlive;
             Bullet hitBullet = hit.collider.GetComponent<Bullet>();
             bool hitRamp = hit.collider.gameObject.CompareTag("Ramp");
 
@@ -58,10 +67,11 @@ public class EnemyCharacter : MonoBehaviour
         bool directLine = Physics.Raycast(transform.position, playerDirection, out RaycastHit hit1);
         if (directLine)
         {
-            PlayerCharacter hitplayer1 = hit1.collider.GetComponent<PlayerCharacter>();
+            bool hitPlayer1 = false;
+            if (hit1.collider.GetComponent<PlayerCharacter>()) hitPlayer1 = hit1.collider.GetComponent<PlayerCharacter>().isAlive;
             Bullet hitBullet1 = hit1.collider.GetComponent<Bullet>();
 
-            if (angleBetween < 75 && hitplayer1)
+            if (angleBetween < 75 && hitPlayer1)
             {
                 targetPlayer = true;
                 Vector3 rotation = Quaternion.LookRotation(playerDirection, Vector3.up).eulerAngles;
