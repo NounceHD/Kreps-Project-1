@@ -66,10 +66,12 @@ public class PlayerCharacter : MonoBehaviour
         health -= damageAmount;
         if (health == 0) Kill();
         health = Mathf.Max(health, 0);
+        Debug.Log(health);
     }
 
     public void Heal(float healAmount)
     {
         health += healAmount;
+        Debug.Log(health);
     }
 }

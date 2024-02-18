@@ -8,13 +8,14 @@ public class EnemyCharacter : MonoBehaviour
     [SerializeField] private GameObject healthSpherePrefab;
 
     public float health = 1f;
-    private float speed = 3f;
+    private float speed = 5f;
     private bool targetPlayer = false;
     private float playerDistance = 0;
     private float rotationX = 0;
     private Vector3 velocity;
     private bool onGround = true;
     private float gravity = -9.8f;
+    private int willingToFall = -1;
 
     void Start()
     {
@@ -60,32 +61,32 @@ public class EnemyCharacter : MonoBehaviour
     private void DetectObstacle()
     {
         float distance = 2f;
+        float size = 0.375f;
+        Vector3 inFrontOffset = transform.forward * distance + Vector3.down;
 
-        bool frontPath = Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, distance);
+        bool frontPath = Physics.SphereCast(transform.position, size, transform.forward, out RaycastHit hit, distance, LayerMask.GetMask("Default"));
         if (frontPath)
         {
             bool hitPlayer = false;
             if (hit.collider.GetComponent<PlayerCharacter>()) hitPlayer = hit.collider.GetComponent<PlayerCharacter>().isAlive;
-            Bullet hitBullet = hit.collider.GetComponent<Bullet>();
             bool hitRamp = hit.collider.gameObject.CompareTag("Ramp");
 
-            if (!hitBullet && !hitPlayer && !hitRamp)
+            if (!hitPlayer && !hitRamp)
             {
                 float randomRotate = Random.Range(-90f, 90f);
                 transform.Rotate(0, randomRotate, 0);
             }
-        }
+        } 
 
         GameObject player = GameObject.FindWithTag("Player");
         Vector3 playerDirection = player.transform.position - transform.position;
         playerDistance = playerDirection.magnitude;
         float angleBetween = Vector3.Angle(transform.forward, playerDirection);
-        bool directLine = Physics.Raycast(transform.position, playerDirection, out RaycastHit hit1);
+        bool directLine = Physics.Raycast(transform.position, playerDirection, out RaycastHit hit1, Mathf.Infinity, LayerMask.GetMask("Default"));
         if (directLine)
         {
             bool hitPlayer1 = false;
             if (hit1.collider.GetComponent<PlayerCharacter>()) hitPlayer1 = hit1.collider.GetComponent<PlayerCharacter>().isAlive;
-            Bullet hitBullet1 = hit1.collider.GetComponent<Bullet>();
 
             if (angleBetween < 75 && hitPlayer1)
             {
@@ -94,12 +95,33 @@ public class EnemyCharacter : MonoBehaviour
                 rotationX = rotation.x;
                 rotation.x = 0;
                 transform.rotation = Quaternion.Euler(rotation);
-            } else if (!hitBullet1)
+            } else
             {
                 targetPlayer = false;
             }
         }
+        
+        if (!targetPlayer && !frontPath && !Physics.CheckSphere(transform.position + inFrontOffset, 0f))
+        {
+            if (willingToFall == -1)
+            {
+                StartCoroutine(madeDecision());
+                willingToFall = Random.Range(0, 2);
+            }
+            if (willingToFall == 1)
+            {
+                float randomRotate = Random.Range(-90f, 90f);
+                transform.Rotate(0, randomRotate, 0);
+            }
+        }
     }
+
+    private IEnumerator madeDecision()
+    {
+        yield return new WaitForSeconds(5f);
+        willingToFall = -1;
+    }
+
     private void Kill()
     {
         GetComponent<CharacterController>().enabled = false;

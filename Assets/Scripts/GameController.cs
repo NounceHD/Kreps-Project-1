@@ -27,7 +27,7 @@ public class GameController : MonoBehaviour
                 if (enemy.GetComponent<EnemyCharacter>().health > 0) allDead = false;
             }
 
-            if (allDead && wave < 3)
+            if (allDead && wave != 3)
             {
                 StartCoroutine(StartWave(3));
             }
